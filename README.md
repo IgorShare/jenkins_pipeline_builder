@@ -86,6 +86,11 @@ Here's a high level overview of what's available:
 - job:
     name: nameStr # Name of your Job
     job_type: free_style # Optional  [free_style|multi_project]
+    discard: # Discard old builds after:
+      days: 1 # Optional, number of days after which the build is deleted
+      number: 2 # Optional, number of builds after which the build is deleted
+      artifact_days: 3 # Optional, number of days after which the artifact is deleted
+      artifact_number: 4 # Optional, number of builds after which the artifact is deleted
     parameters:
       - name: param_name
         type: string
@@ -143,9 +148,11 @@ Here's a high level overview of what's available:
           release-repo: release
           snapshot-repo: snapshot
           publish-build-info: true # Optional
-      - inject_env_var: |
-          VAR1 = value_1
-          VAR2 = value_2
+      - inject_env_var: 
+          file: 'foo.prop'
+          content: |
+            VAR1 = value_1
+            VAR2 = value_2
       - inject_passwords:
         - name: pwd_name
           value: some_encrypted_password
@@ -183,6 +190,7 @@ Here's a high level overview of what's available:
     triggers:
       - git_push: true
       - scm_polling: 'H/5 * * * *'
+      - periodic_build: 'H/15 * * * *'
     build_flow: |
       guard {
         build("job_name1", param1: params["param1"]);
