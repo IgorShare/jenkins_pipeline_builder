@@ -48,6 +48,7 @@ module JenkinsPipelineBuilder
               scm_params: JobBuilder.method(:apply_scm_params),
               hipchat: JobBuilder.method(:hipchat_notifier),
               parameters: JobBuilder.method(:build_parameters),
+              discard: JobBuilder.method(:discard_param),
               builders: {
                   registry: {
                       multi_job: Builders.method(:build_multijob),
@@ -88,8 +89,9 @@ module JenkinsPipelineBuilder
               triggers: {
                   registry: {
                       git_push: Triggers.method(:enable_git_push),
-                      scm_polling: Triggers.method(:enable_scm_polling)
-                  },
+                      scm_polling: Triggers.method(:enable_scm_polling),
+                      periodic_build: Triggers.method(:enable_periodic_build)
+                  }, 
                   method:
                     lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//triggers', registry, params, n_xml) }
               }
