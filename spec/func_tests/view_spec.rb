@@ -1,13 +1,13 @@
 require File.expand_path('../spec_helper', __FILE__)
 
 describe JenkinsPipelineBuilder::View do
-  context "With properly initialized client" do
+  context 'With properly initialized client' do
     before(:all) do
       @creds_file = '~/.jenkins_api_client/login.yml'
       @valid_post_responses = [200, 201, 302]
       begin
         @client = JenkinsApi::Client.new(
-            YAML.load_file(File.expand_path(@creds_file, __FILE__))
+          YAML.load_file(File.expand_path(@creds_file, __FILE__))
         )
         @client.logger.level = Logger::DEBUG
         @generator = JenkinsPipelineBuilder::Generator.new(nil, @client)
@@ -25,7 +25,7 @@ describe JenkinsPipelineBuilder::View do
           @valid_post_responses.should include(
             @generator.view.create(params).to_i
           )
-          @generator.view.list_children(params[:parent_view], name).include?(name).should be_true
+          @generator.view.list_children(params[:parent_view], name).include?(name).should be true
         end
 
         def destroy_and_validate(params)
@@ -33,7 +33,7 @@ describe JenkinsPipelineBuilder::View do
           @valid_post_responses.should include(
             @generator.view.delete(name, params[:parent_view]).to_i
           )
-          @generator.view.list_children(params[:parent_view], name).include?(name).should be_false
+          @generator.view.list_children(params[:parent_view], name).include?(name).should be false
         end
 
         def test_and_validate(params)
@@ -76,10 +76,10 @@ describe JenkinsPipelineBuilder::View do
             groupingRules: [{
               groupRegex: 'Step-1.*',
               namingRule: '1. Commit'
-            },{
+            }, {
               groupRegex: 'Step-2.*',
               namingRule: '2. Acceptance'
-            },{
+            }, {
               groupRegex: 'Step-3.*',
               namingRule: '3. Release'
             }]
