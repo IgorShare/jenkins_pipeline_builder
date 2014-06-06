@@ -37,7 +37,7 @@ module JenkinsPipelineBuilder
         xml.configs {
           xml.send('hudson.plugins.parameterizedtrigger.BuildTriggerConfig') {
             xml.configs {
-              params[:data] = [ { params: "" } ] unless params[:data]
+              params[:data] = [{params: ""}] unless params[:data]
               params[:data].each do |config|
                 if config[:params]
                   xml.send('hudson.plugins.parameterizedtrigger.PredefinedBuildParameters') {
@@ -89,6 +89,21 @@ module JenkinsPipelineBuilder
         xml.keepLongStdio false
         xml.testDataPublishers
       }
+    end
+
+    def self.publish_sonar(params, xml)
+      xml.send('hudson.plugins.sonar.SonarPublisher', plugin: 'sonar@2.1') do
+        xml.jdk '(Inherit From Job)'
+        xml.branch '' # rpark-test || master
+        xml.language
+        xml.mavenOpts
+        xml.jobAdditionalProperties
+        xml.mavenInstallationName #tools-maven-3.0.3-artifactory
+        xml.rootPom
+        xml.settings class: 'jenkins.mvn.DefaultSettingsProvider'
+        xml.globalSettings class: 'jenkins.mvn.DefaultGlobalSettingsProvider'
+        xml.usePrivateRepository false
+      end
     end
 
     def self.coverage_metric(name, params, xml)
