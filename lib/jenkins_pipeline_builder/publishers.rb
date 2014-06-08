@@ -94,11 +94,11 @@ module JenkinsPipelineBuilder
     def self.publish_sonar(params, xml)
       xml.send('hudson.plugins.sonar.SonarPublisher', plugin: 'sonar@2.1') do
         xml.jdk '(Inherit From Job)'
-        xml.branch '' # rpark-test || master
+        xml.branch params[:branch] || ''
         xml.language
         xml.mavenOpts
         xml.jobAdditionalProperties
-        xml.mavenInstallationName #tools-maven-3.0.3-artifactory
+        xml.mavenInstallationName params[:maven_installation_name] || ''
         xml.rootPom
         xml.settings class: 'jenkins.mvn.DefaultSettingsProvider'
         xml.globalSettings class: 'jenkins.mvn.DefaultGlobalSettingsProvider'

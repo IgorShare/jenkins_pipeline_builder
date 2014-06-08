@@ -15,8 +15,6 @@ describe JenkinsPipelineBuilder::Publishers do
     it 'populates the path to the test results' do
       params[:test_results] = 'path/to/results.xml'
 
-      builder = Nokogiri::XML::Builder.new
-
       JenkinsPipelineBuilder::Publishers.publish_junit params, builder
 
       junit_nodes = builder.doc.root.children
@@ -34,7 +32,24 @@ describe JenkinsPipelineBuilder::Publishers do
       expect(publisher.attribute('plugin').value).to match 'sonar'
     end
 
-    it 'populates branch'
-    it 'populates maven installation name'
+    it 'populates branch' do
+      params[:branch] = 'test'
+
+      JenkinsPipelineBuilder::Publishers.publish_sonar params, builder
+
+      sonar_nodes = builder.doc.root.children
+      branch = sonar_nodes.select { |node| node.name == 'branch' }
+      expect(branch.first.content).to match 'test'
+    end
+
+    it 'populates maven installation name' do
+      params[:maven_installation_name] = 'test'
+
+      JenkinsPipelineBuilder::Publishers.publish_sonar params, builder
+
+      sonar_nodes = builder.doc.root.children
+      maven_installation_name = sonar_nodes.select { |node| node.name == 'mavenInstallationName' }
+      expect(maven_installation_name.first.content).to match 'test'
+    end
   end
 end
