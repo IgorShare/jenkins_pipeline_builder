@@ -245,7 +245,7 @@ module JenkinsPipelineBuilder
     end
 
     def bootstrap(path)
-      @logger.info "Bootstrapping pipeline from path #{path}"
+      @logger.info "Bootstrapping pipeline from path '#{path}'"
       load_collection_from_path(path)
 
       errors = {}
