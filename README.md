@@ -202,6 +202,9 @@ Here's a high level overview of what's available:
                 PARAM1=value1
                 PARAM2=value2
             - file: promote-job-params
+      - sonar:
+          branch: 'master'
+          maven_installation_name: 'maven-3.0.3-artifactory'
     triggers:
       - git_push: true
       - scm_polling: 'H/5 * * * *'
