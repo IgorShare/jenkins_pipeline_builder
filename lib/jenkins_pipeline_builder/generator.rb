@@ -36,80 +36,84 @@ module JenkinsPipelineBuilder
     # @raise [ArgumentError] when required options are not provided.
     #
     def initialize(args, client)
-      @client        = client
-      @logger        = @client.logger
+      @client = client
+      @logger = @client.logger
       #@logger.level = (@debug) ? Logger::DEBUG : Logger::INFO;
       @job_templates = {}
       @job_collection = {}
 
       @module_registry = ModuleRegistry.new ({
-          job: {
-              description: JobBuilder.method(:change_description),
-              scm_params: JobBuilder.method(:apply_scm_params),
-              hipchat: JobBuilder.method(:hipchat_notifier),
-              parameters: JobBuilder.method(:build_parameters),
-              priority: JobBuilder.method(:use_specific_priority),
-              discard_old: JobBuilder.method(:discard_old_param),
-              throttle: JobBuilder.method(:throttle_job),
-              prepare_environment: JobBuilder.method(:prepare_environment),
-              builders: {
-                  registry: {
-                      multi_job: Builders.method(:build_multijob),
-                      inject_vars_file: Builders.method(:build_environment_vars_injector),
-                      shell_command: Builders.method(:build_shell_command),
-                      maven3: Builders.method(:build_maven3)
-                  },
-                  method:
-                    lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//builders', registry, params, n_xml) }
-              },
-              publishers: {
-                  registry: {
-                      git: Publishers.method(:push_to_git),
-                      hipchat: Publishers.method(:push_to_hipchat),
-                      description_setter: Publishers.method(:description_setter),
-                      downstream: Publishers.method(:push_to_projects),
-                      junit_result: Publishers.method(:publish_junit),
-                      coverage_result: Publishers.method(:publish_rcov),
-                      post_build_script: Publishers.method(:post_build_script)
-                  },
-                  method:
-                    lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//publishers', registry, params, n_xml) }
-              },
-              wrappers: {
-                  registry: {
-                      timestamp: Wrappers.method(:console_timestamp),
-                      ansicolor: Wrappers.method(:ansicolor),
-                      artifactory: Wrappers.method(:publish_to_artifactory),
-                      rvm: Wrappers.method(:run_with_rvm),
-                      rvm05: Wrappers.method(:run_with_rvm05),
-                      inject_env_var: Wrappers.method(:inject_env_vars),
-                      inject_passwords: Wrappers.method(:inject_passwords),
-                      maven3artifactory: Wrappers.method(:artifactory_maven3_configurator)
-                  },
-                  method:
-                    lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//buildWrappers', registry, params, n_xml) }
-              },
-              triggers: {
-                  registry: {
-                      git_push: Triggers.method(:enable_git_push),
-                      scm_polling: Triggers.method(:enable_scm_polling),
-                      periodic_build: Triggers.method(:enable_periodic_build)
-                  },
-                  method:
-                    lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//triggers', registry, params, n_xml) }
-              }
+        job: {
+          description: JobBuilder.method(:change_description),
+          scm_params: JobBuilder.method(:apply_scm_params),
+          hipchat: JobBuilder.method(:hipchat_notifier),
+          parameters: JobBuilder.method(:build_parameters),
+          priority: JobBuilder.method(:use_specific_priority),
+          discard_old: JobBuilder.method(:discard_old_param),
+          throttle: JobBuilder.method(:throttle_job),
+          prepare_environment: JobBuilder.method(:prepare_environment),
+          builders: {
+            registry: {
+              multi_job: Builders.method(:build_multijob),
+              inject_vars_file: Builders.method(:build_environment_vars_injector),
+              shell_command: Builders.method(:build_shell_command),
+              maven3: Builders.method(:build_maven3)
+            },
+            method:
+              lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//builders', registry, params, n_xml) }
+          },
+          publishers: {
+            registry: {
+              git: Publishers.method(:push_to_git),
+              hipchat: Publishers.method(:push_to_hipchat),
+              description_setter: Publishers.method(:description_setter),
+              downstream: Publishers.method(:push_to_projects),
+              junit_result: Publishers.method(:publish_junit),
+              coverage_result: Publishers.method(:publish_rcov),
+              post_build_script: Publishers.method(:post_build_script),
+              sonar_result: Publishers.method(:publish_sonar)
+            },
+            method:
+              lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//publishers', registry, params, n_xml) }
+          },
+          wrappers: {
+            registry: {
+              timestamp: Wrappers.method(:console_timestamp),
+              ansicolor: Wrappers.method(:ansicolor),
+              artifactory: Wrappers.method(:publish_to_artifactory),
+              rvm: Wrappers.method(:run_with_rvm),
+              rvm05: Wrappers.method(:run_with_rvm05),
+              inject_env_var: Wrappers.method(:inject_env_vars),
+              inject_passwords: Wrappers.method(:inject_passwords),
+              maven3artifactory: Wrappers.method(:artifactory_maven3_configurator)
+            },
+            method:
+              lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//buildWrappers', registry, params, n_xml) }
+          },
+          triggers: {
+            registry: {
+              git_push: Triggers.method(:enable_git_push),
+              scm_polling: Triggers.method(:enable_scm_polling),
+              periodic_build: Triggers.method(:enable_periodic_build)
+            },
+            method:
+              lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//triggers', registry, params, n_xml) }
           }
+        }
       })
     end
 
     attr_accessor :client
+
     def debug=(value)
       @debug = value
       @logger.level = (value) ? Logger::DEBUG : Logger::INFO;
     end
+
     def debug
       @debug
     end
+
     # TODO: WTF?
     attr_accessor :no_files
     attr_accessor :job_collection
@@ -152,7 +156,7 @@ module JenkinsPipelineBuilder
         value = section[key]
         name = value[:name]
         raise "Duplicate item with name '#{name}' was detected." if @job_collection.has_key?(name)
-        @job_collection[name.to_s] = { name: name.to_s, type: key, value: value }
+        @job_collection[name.to_s] = {name: name.to_s, type: key, value: value}
       end
     end
 
@@ -170,7 +174,7 @@ module JenkinsPipelineBuilder
       # Process jobs
       jobs = project_body[:jobs] || []
       jobs.map! do |job|
-        job.kind_of?(String) ? { job.to_sym => {} } : job
+        job.kind_of?(String) ? {job.to_sym => {}} : job
       end
       errors = {}
       @logger.info project
@@ -188,7 +192,7 @@ module JenkinsPipelineBuilder
       # Process views
       views = project_body[:views] || []
       views.map! do |view|
-        view.kind_of?(String) ? { view.to_sym => {} } : view
+        view.kind_of?(String) ? {view.to_sym => {}} : view
       end
       views.each do |view|
         view_id = view.keys.first
@@ -202,7 +206,7 @@ module JenkinsPipelineBuilder
         end
       end
 
-      errors.each do |k,v|
+      errors.each do |k, v|
         puts "Encountered errors processing: #{k}:"
         v.each do |key, error|
           puts "  key: #{key} had the following error:"
@@ -289,7 +293,7 @@ module JenkinsPipelineBuilder
           end
         end
       end
-      errors.each do |k,v|
+      errors.each do |k, v|
         @logger.error "Encountered errors compiling: #{k}:"
         @logger.error v
       end
@@ -349,6 +353,8 @@ module JenkinsPipelineBuilder
       n_xml.to_xml
     end
 
+    private
+
     def compile_freestyle_job_to_xml(params)
       if params.has_key?(:template)
         template_name = params[:template]
@@ -360,7 +366,7 @@ module JenkinsPipelineBuilder
         puts "Template merged: #{template}"
       end
 
-      xml   = @client.job.build_freestyle_config(params)
+      xml = @client.job.build_freestyle_config(params)
       n_xml = Nokogiri::XML(xml)
 
       @module_registry.traverse_registry_path('job', params, n_xml)
@@ -369,7 +375,7 @@ module JenkinsPipelineBuilder
     end
 
     def add_job_dsl(job, xml)
-      n_xml      = Nokogiri::XML(xml)
+      n_xml = Nokogiri::XML(xml)
       n_xml.root.name = 'com.cloudbees.plugins.flow.BuildFlow'
       Nokogiri::XML::Builder.with(n_xml.root) do |xml|
         xml.dsl job[:build_flow]
@@ -379,7 +385,7 @@ module JenkinsPipelineBuilder
 
     # TODO: make sure this is tested
     def update_job_dsl(job, xml)
-      n_xml      = Nokogiri::XML(xml)
+      n_xml = Nokogiri::XML(xml)
       n_builders = n_xml.xpath('//builders').first
       Nokogiri::XML::Builder.with(n_builders) do |xml|
         build_job_dsl(job, xml)

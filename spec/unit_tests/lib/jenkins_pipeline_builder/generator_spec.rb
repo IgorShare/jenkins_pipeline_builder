@@ -1,5 +1,4 @@
 require File.expand_path('../../../spec_helper', __FILE__)
-# require 'unit_tests/spec_helper'
 
 describe 'Test YAML jobs conversion to XML' do
   context 'Loading YAML files' do
@@ -58,7 +57,7 @@ describe 'Test YAML jobs conversion to XML' do
       end
     end
 
-    it "should create expected XML from YAML collection" do
+    it 'should create expected XML from YAML collection' do
       path = File.expand_path('../../../fixtures/files/', __FILE__)
 
       @generator.load_collection_from_path(path)
@@ -82,15 +81,30 @@ describe 'Test YAML jobs conversion to XML' do
   end
 
   describe JenkinsPipelineBuilder::Generator do
-    let(:jenkins_api_client) { double JenkinsApi::Client }
+    let(:jenkins_api_client) { JenkinsApi::Client.new(
+      server_ip: '127.0.0.1',
+      server_port: 8080,
+      username: 'username',
+      password: 'password',
+      log_location: '/dev/null'
+    ) }
+    let(:generator) { JenkinsPipelineBuilder::Generator.new nil, jenkins_api_client }
+    let(:job) { {name: 'test', publishers: {}} }
 
-    before(:each) do
-      expect(jenkins_api_client).to receive :logger
-      @generator = JenkinsPipelineBuilder::Generator.new nil, jenkins_api_client
+    it 'generates junit publisher' do
+      job[:publishers] = [{junit_result: {}}]
+      success, xml = generator.compile_job_to_xml job
+
+      expect(success).to be_true
+      expect(xml).to match /junit/
     end
 
-    it 'generates publishers' do
-      expect(@generator).to_not be_nil
+    it 'generates sonar publisher' do
+      job[:publishers] = [{sonar_result: {}}]
+      success, xml = generator.compile_job_to_xml job
+
+      expect(success).to be_true
+      expect(xml).to match /sonar/
     end
   end
 end
