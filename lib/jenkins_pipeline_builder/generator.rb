@@ -94,7 +94,7 @@ module JenkinsPipelineBuilder
                       git_push: Triggers.method(:enable_git_push),
                       scm_polling: Triggers.method(:enable_scm_polling),
                       periodic_build: Triggers.method(:enable_periodic_build)
-                  }, 
+                  },
                   method:
                     lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//triggers', registry, params, n_xml) }
               }

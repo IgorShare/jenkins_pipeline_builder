@@ -1,4 +1,4 @@
-require File.expand_path('../spec_helper', __FILE__)
+require File.expand_path('../../../spec_helper', __FILE__)
 
 describe 'Compiler' do
   it 'transforms hash into hash' do

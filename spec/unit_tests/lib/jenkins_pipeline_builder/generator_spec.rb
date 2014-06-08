@@ -1,14 +1,15 @@
-require 'unit_tests/spec_helper'
+require File.expand_path('../../../spec_helper', __FILE__)
+# require 'unit_tests/spec_helper'
 
 describe 'Test YAML jobs conversion to XML' do
   context 'Loading YAML files' do
     before do
       @client = JenkinsApi::Client.new(
-          :server_ip => '127.0.0.1',
-          :server_port => 8080,
-          :username => 'username',
-          :password => 'password',
-          :log_location => '/dev/null'
+        :server_ip => '127.0.0.1',
+        :server_port => 8080,
+        :username => 'username',
+        :password => 'password',
+        :log_location => '/dev/null'
       )
       @generator = JenkinsPipelineBuilder::Generator.new(nil, @client)
       @generator.debug = true
@@ -46,7 +47,7 @@ describe 'Test YAML jobs conversion to XML' do
 
     files.each do |file|
       it "should create expected XML from YAML '#{file}'" do
-        path = File.expand_path('../fixtures/files/' + file, __FILE__)
+        path = File.expand_path('../../../fixtures/files/' + file, __FILE__)
 
         @generator.load_collection_from_path path + '.yaml'
         job_name = @generator.job_collection.keys.first
@@ -58,7 +59,7 @@ describe 'Test YAML jobs conversion to XML' do
     end
 
     it "should create expected XML from YAML collection" do
-      path = File.expand_path('../fixtures/files/', __FILE__)
+      path = File.expand_path('../../../fixtures/files/', __FILE__)
 
       @generator.load_collection_from_path(path)
 
@@ -77,6 +78,19 @@ describe 'Test YAML jobs conversion to XML' do
         file_name = File.join(path, job[:name])
         compare_jobs job, file_name
       end
+    end
+  end
+
+  describe JenkinsPipelineBuilder::Generator do
+    let(:jenkins_api_client) { double JenkinsApi::Client }
+
+    before(:each) do
+      expect(jenkins_api_client).to receive :logger
+      @generator = JenkinsPipelineBuilder::Generator.new nil, jenkins_api_client
+    end
+
+    it 'generates publishers' do
+      expect(@generator).to_not be_nil
     end
   end
 end
