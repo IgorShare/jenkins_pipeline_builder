@@ -71,7 +71,8 @@ module JenkinsPipelineBuilder
                       downstream: Publishers.method(:push_to_projects),
                       junit_result: Publishers.method(:publish_junit),
                       coverage_result: Publishers.method(:publish_rcov),
-                      post_build_script: Publishers.method(:post_build_script)
+                      post_build_script: Publishers.method(:post_build_script),
+                      groovy_postbuild: Publishers.method(:groovy_postbuild)
                   },
                   method:
                     lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//publishers', registry, params, n_xml) }
@@ -339,8 +340,11 @@ module JenkinsPipelineBuilder
           payload = add_job_dsl(job, xml)
         when 'free_style'
           payload = compile_freestyle_job_to_xml job
+        when 'pull_request_generator'
+          xml = compile_freestyle_job_to_xml(job)
+          payload = update_for_pull_request(job, xml)
         else
-          return false, "Job type: #{job[:job_type]} is not one of job_dsl, multi_project, build_flow or free_style"
+          return false, "Job type: #{job[:job_type]} is not one of job_dsl, multi_project, build_flow, pull_request_generator or free_style"
       end
 
       return true, payload
@@ -389,6 +393,11 @@ module JenkinsPipelineBuilder
         build_job_dsl(job, xml)
       end
       n_xml.to_xml
+    end
+
+    def update_for_pull_request(job, xml)
+      job = PullReqGen::pull_request_gen(job, xml)
+      update_job_dsl(job, xml)
     end
 
     def generate_job_dsl_body(params)
