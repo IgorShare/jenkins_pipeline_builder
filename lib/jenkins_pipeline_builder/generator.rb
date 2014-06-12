@@ -52,12 +52,14 @@ module JenkinsPipelineBuilder
               discard_old: JobBuilder.method(:discard_old_param),
               throttle: JobBuilder.method(:throttle_job),
               prepare_environment: JobBuilder.method(:prepare_environment),
+              concurrent_build: JobBuilder.method(:concurrent_build),
               builders: {
                   registry: {
                       multi_job: Builders.method(:build_multijob),
                       inject_vars_file: Builders.method(:build_environment_vars_injector),
                       shell_command: Builders.method(:build_shell_command),
                       maven3: Builders.method(:build_maven3),
+                      blocking_downstream: Builders.method(:blocking_downstream),
                       remote_job: Builders.method(:start_remote_job)
                   },
                   method:
@@ -71,7 +73,8 @@ module JenkinsPipelineBuilder
                       downstream: Publishers.method(:push_to_projects),
                       junit_result: Publishers.method(:publish_junit),
                       coverage_result: Publishers.method(:publish_rcov),
-                      post_build_script: Publishers.method(:post_build_script)
+                      post_build_script: Publishers.method(:post_build_script),
+                      groovy_postbuild: Publishers.method(:groovy_postbuild)
                   },
                   method:
                     lambda { |registry, params, n_xml| @module_registry.run_registry_on_path('//publishers', registry, params, n_xml) }

@@ -86,6 +86,7 @@ Here's a high level overview of what's available:
 - job:
     name: nameStr # Name of your Job
     job_type: free_style # Optional  [free_style|multi_project]
+    concurrent_build: true or false
     discard_old: # Discard old builds after:
       days: 1 # Optional, number of days after which the build is deleted
       number: 2 # Optional, number of builds after which the build is deleted
@@ -160,6 +161,18 @@ Here's a high level overview of what's available:
             type: api_token or none
             username: name_of_user
             api_token: APITOKEN
+      - blocking_downstream:
+          project: nameStr
+          data:
+            - params: |
+                param1
+                param2
+          condition: FAILURE
+          trigger_with_no_parameters: false
+          # Below is Optional, values can be SUCCESS, FAILURE, UNSTABLE, never
+          fail: FAILURE # Fail this build step if the triggered build is worse or equal to
+          mark_fail: SUCCESS # Mark this build as failure if the triggered build is worse or equal to
+          mark_unstable: UNSTABLE # Mark this build as unstable if the triggered build is worse or equal to
     wrappers:
       - timestamp: true
       - ansicolor: true
@@ -265,6 +278,25 @@ If a set of Defaults is specified with the name global, that will be used by all
     param1: 'value 1'
 ```
 
+PLUGINS:
+--------
+
+A number of the DSL options rely on Jenkins plugins, including:
+
+* ansicolor - "AnsiColor"    
+* (view) type: 'categorizedView' - "categorized-view"
+* hipchat - "HipChat Plugin"    
+* inject_env_vars - "Environment Injector Plugin"    
+* priority - "Priority Sorter plugin"    
+* downstream - "Parameterized Trigger plugin"    
+* rvm - "Rvm"    
+* throttle - "Throttle Concurrent Builds Plug-in"    
+* timestamp - "Timestamper"  
+* groovy_postbuild - "Groovy Postbuild"  
+
+Just about every plugin above can be installed through Jenkins (Manage Jenkins > Manage Plugins > Available)
+
+Exceptions:
 
 CONTRIBUTING:
 ----------------
